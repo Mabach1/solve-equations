@@ -9,6 +9,8 @@ typedef struct _Matrix {
 #define M_LEN(m) m.rows * m.cols 
 #define M_LEN_PTR(m) m->rows * m->cols 
 
+#define NULL_MAT (Matrix){ .cols = 0, .rows = 0, .vals = NULL }
+
 Matrix new_matrix(Arena *arena, usize rows, usize cols) {
     Matrix m = {
         .cols = cols,
@@ -27,6 +29,11 @@ Matrix new_matrix(Arena *arena, usize rows, usize cols) {
 }
 
 void matrix_print(const Matrix m) {
+    if (0 == m.cols || 0 == m.rows) {
+        fprintf(stderr, "Error: Trying to print Empty(NULL) matrix!\n");
+        return;
+    }
+
     u64 max_width[m.cols];
 
     for (u64 j = 0; j < m.cols; ++j) {
@@ -87,7 +94,7 @@ i32 main(i32 argc, char **argv) {
 
     matrix_set(&m, vals, 6);
 
-    matrix_print(m);
+    matrix_print(NULL_MAT);
 
     arena_deinit(&arena);
 
