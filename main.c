@@ -139,7 +139,7 @@ f32 matrix_def(Matrix m) {
     return ((m.vals[0]) * m.vals[3] - (m.vals[1] * m.vals[2]));
 }
 
-void inverse(Matrix *m) {
+void matrix_inverse(Matrix *m) {
     f32 temp = m->vals[0];
     m->vals[0] = m->vals[3];
     m->vals[3] = temp;
@@ -150,6 +150,45 @@ void inverse(Matrix *m) {
     matrix_multiply_c(*m, 1/matrix_def(*m));
 }
 
+bool solve(String e1_str, String e2_str, f32 *x, f32 *y) {
+    struct _Equation { f32 x, y, r; };
+
+    struct _Equation e1 = { 0 };
+    struct _Equation e2 = { 0 };
+
+    char chr = 0;
+    if (sscanf(e1_str.data, "%f%c%f%c%c%f", &e1.x, &chr, &e1.y, &chr, &chr, &e1.r) != 6 || 
+        sscanf(e2_str.data, "%f%c%f%c%c%f", &e2.x, &chr, &e2.y, &chr, &chr, &e2.r) != 6) { 
+        return false; 
+    }
+
+    f32 right_val[] = { e1.r, e2.r };
+    f32  left_val[] = { e1.x, e1.y, e2.x, e2.y };
+
+    Arena arena;
+
+    arena_init(&arena);
+
+    Matrix right = new_matrix(&arena, 2, 1);
+    matrix_set(right, right_val, 2);
+
+    Matrix left = new_matrix(&arena, 2, 2);
+    matrix_set(left, left_val, 4);
+
+    // inverse the matrix of the left side
+    matrix_inverse(&left);
+
+    // multiply metricies of the right and left side
+    Matrix res = matrix_mul(&arena, left, right);
+
+    *x = res.vals[0];
+    *y = res.vals[1];
+
+    arena_deinit(&arena);
+
+    return true;
+}
+
 i32 main(i32 argc, char **argv) {
     Arena arena;    
 
@@ -157,15 +196,14 @@ i32 main(i32 argc, char **argv) {
 
     StringArr equations = stringarr_from_file(&arena, "equations.txt");
 
-    Matrix m1 = new_matrix(&arena, 3, 2);
-    Matrix m2 = new_matrix(&arena, 2, 3);
+    f32 x = 0.f;
+    f32 y = 0.f;
 
-    f32 vals[] = { 0.2f, 0.45f, 0.2f, 1.f, 4.f, 69.f };
+    if (!solve(string_str_lit("1x-7y=-11"), string_str_lit("5x+2y=-18"), &x, &y)) {
+        fprintf(stdout, "Error: Calculation failed!\n");
+    }
 
-    matrix_set(m1, vals, 6);
-    matrix_set(m2, vals, 6);
-
-    matrix_print(matrix_mul(&arena, m1, m2));
+    fprintf(stdout, "\nx = %.2f y = %.2f\n", x, y);
 
     arena_deinit(&arena);
 
