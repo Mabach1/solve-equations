@@ -28,8 +28,12 @@ Matrix new_matrix(Arena *arena, usize rows, usize cols) {
     return m;
 }
 
+bool matrix_is_null(const Matrix m) {
+    return (0 == m.cols || 0 == m.rows || NULL == m.vals);
+}
+
 void matrix_print(const Matrix m) {
-    if (0 == m.cols || 0 == m.rows) {
+    if (matrix_is_null(m)) {
         fprintf(stderr, "Error: Trying to print Empty(NULL) matrix!\n");
         return;
     }
@@ -90,6 +94,20 @@ Matrix matrix_add(Arena *arena, Matrix m1, Matrix m2) {
 
     for (usize i = 0; i < M_LEN(result); ++i) {
         result.vals[i] = m1.vals[i] + m2.vals[i];
+    }
+
+    return result;
+}
+
+Matrix matrix_sub(Arena *arena, Matrix m1, Matrix m2) {
+    if (m1.rows != m2.rows || m1.cols != m2.cols) {
+        return NULL_MAT;
+    }
+
+    Matrix result = new_matrix(arena, m1.rows, m1.cols);
+
+    for (usize i = 0; i < M_LEN(result); ++i) {
+        result.vals[i] = m1.vals[i] - m2.vals[i];
     }
 
     return result;
