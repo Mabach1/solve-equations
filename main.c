@@ -199,11 +199,14 @@ i32 main(i32 argc, char **argv) {
     f32 x = 0.f;
     f32 y = 0.f;
 
-    if (!solve(string_str_lit("1x-7y=-11"), string_str_lit("5x+2y=-18"), &x, &y)) {
+    String e1 = string_from(&arena, "1x-7y=-11");
+    String e2 = string_from(&arena, "5x+2y=-18");
+
+    if (!solve(e1, e2, &x, &y)) {
         fprintf(stdout, "Error: Calculation failed!\n");
     }
 
-    fprintf(stdout, "\nx = %.2f y = %.2f\n", x, y);
+    fprintf(stdout, "x = %.2f y = %.2f\n", x, y);
 
     arena_deinit(&arena);
 
