@@ -7,7 +7,6 @@ typedef struct _Matrix {
 } Matrix;
 
 #define M_LEN(m) m.rows * m.cols 
-#define M_LEN_PTR(m) m->rows * m->cols 
 
 #define NULL_MAT (Matrix){ .cols = 0, .rows = 0, .vals = NULL }
 
