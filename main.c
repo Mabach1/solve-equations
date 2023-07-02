@@ -81,6 +81,20 @@ void matrix_multiply_c(Matrix m, f32 c) {
     }
 }
 
+Matrix matrix_add(Arena *arena, Matrix m1, Matrix m2) {
+    if (m1.rows != m2.rows || m1.cols != m2.cols) {
+        return NULL_MAT;
+    }
+
+    Matrix result = new_matrix(arena, m1.rows, m1.cols);
+
+    for (usize i = 0; i < M_LEN(result); ++i) {
+        result.vals[i] = m1.vals[i] + m2.vals[i];
+    }
+
+    return result;
+}
+
 i32 main(i32 argc, char **argv) {
     Arena arena;    
 
@@ -88,13 +102,15 @@ i32 main(i32 argc, char **argv) {
 
     StringArr equations = stringarr_from_file(&arena, "equations.txt");
 
-    Matrix m = new_matrix(&arena, 3, 2);
+    Matrix m1 = new_matrix(&arena, 3, 2);
+    Matrix m2 = new_matrix(&arena, 3, 2);
 
     f32 vals[] = { 0.2f, 0.45f, 0.2f, 1.f, 4.f, 69.f };
 
-    matrix_set(m, vals, 6);
+    matrix_set(m1, vals, 6);
+    matrix_set(m2, vals, 6);
 
-    matrix_print(m);
+    matrix_print(matrix_add(&arena, m1, m2));
 
     arena_deinit(&arena);
 
