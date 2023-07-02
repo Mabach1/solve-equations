@@ -65,11 +65,11 @@ void matrix_print(const Matrix m) {
     fprintf(stdout, "\n");
 }
 
-bool matrix_set(Matrix *m, f32 *vals, usize len) {
-    if (len != M_LEN_PTR(m)) { return false; }
+bool matrix_set(Matrix m, f32 *vals, usize len) {
+    if (len != M_LEN(m)) { return false; }
 
     for (usize i = 0; i < len; ++i) {
-        m->vals[i] = vals[i];
+        m.vals[i] = vals[i];
     }
 
     return true;
@@ -92,9 +92,9 @@ i32 main(i32 argc, char **argv) {
 
     f32 vals[] = { 0.2f, 0.45f, 0.2f, 1.f, 4.f, 69.f };
 
-    matrix_set(&m, vals, 6);
+    matrix_set(m, vals, 6);
 
-    matrix_print(NULL_MAT);
+    matrix_print(m);
 
     arena_deinit(&arena);
 
