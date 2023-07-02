@@ -135,6 +135,22 @@ Matrix matrix_mul(Arena *arena, Matrix m1, Matrix m2) {
     return result;
 }
 
+/* these matrix operation works only on 2x2 matricies, plan for the future is to generelize them */
+f32 matrix_def(Matrix m) {
+    return ((m.vals[0]) * m.vals[3] - (m.vals[1] * m.vals[2]));
+}
+
+void inverse(Matrix *m) {
+    f32 temp = m->vals[0];
+    m->vals[0] = m->vals[3];
+    m->vals[3] = temp;
+
+    m->vals[1] *= -1;
+    m->vals[2] *= -1;
+    
+    matrix_multiply_c(*m, 1/matrix_def(*m));
+}
+
 i32 main(i32 argc, char **argv) {
     Arena arena;    
 
