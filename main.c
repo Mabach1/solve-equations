@@ -34,7 +34,7 @@ bool matrix_is_null(const Matrix m) {
 
 void matrix_print(const Matrix m) {
     if (matrix_is_null(m)) {
-        fprintf(stderr, "Error: Trying to print Empty(NULL) matrix!\n");
+        fprintf(stderr, "Error: Trying to print Empty (NULL) matrix!\n");
         return;
     }
 
@@ -113,6 +113,28 @@ Matrix matrix_sub(Arena *arena, Matrix m1, Matrix m2) {
     return result;
 }
 
+Matrix matrix_mul(Arena *arena, Matrix m1, Matrix m2) {
+    if (m1.cols != m2.rows) {
+        return NULL_MAT;
+    }
+
+    Matrix result = new_matrix(arena, m1.rows, m2.cols);
+
+    for (usize i = 0; i < m1.rows; ++i) {
+        for (usize j = 0; j < m2.cols; ++j) {
+            f32 temp = 0.f;
+
+            for (usize k = 0; k < m1.cols; ++k) {
+                temp += m1.vals[(i * m1.cols) + k] * m2.vals[(k * m2.cols) + j];
+            }
+
+            result.vals[(i * result.cols) + j] = temp;
+        }
+    }
+
+    return result;
+}
+
 i32 main(i32 argc, char **argv) {
     Arena arena;    
 
@@ -121,14 +143,14 @@ i32 main(i32 argc, char **argv) {
     StringArr equations = stringarr_from_file(&arena, "equations.txt");
 
     Matrix m1 = new_matrix(&arena, 3, 2);
-    Matrix m2 = new_matrix(&arena, 3, 2);
+    Matrix m2 = new_matrix(&arena, 2, 3);
 
     f32 vals[] = { 0.2f, 0.45f, 0.2f, 1.f, 4.f, 69.f };
 
     matrix_set(m1, vals, 6);
     matrix_set(m2, vals, 6);
 
-    matrix_print(matrix_add(&arena, m1, m2));
+    matrix_print(matrix_mul(&arena, m1, m2));
 
     arena_deinit(&arena);
 
