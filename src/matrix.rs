@@ -79,7 +79,8 @@ impl Matrix {
         let mut fst_iteration_result: Vec<f32> = vec![];
 
         for row_idx in 0..self.rows {
-            let current_row = (&self.data[row_idx * self.cols..row_idx * self.cols + self.cols]).to_vec();
+            let current_row =
+                (&self.data[row_idx * self.cols..row_idx * self.cols + self.cols]).to_vec();
 
             // the value of element we want to be 1
             let divisor = current_row.get(idx).unwrap().clone();
@@ -89,12 +90,14 @@ impl Matrix {
 
             println!("current row {:?}", divided_row);
 
-            for rest_row_idx in row_idx..self.rows - 1 {
-                let row = (&self.data[rest_row_idx * self.cols..rest_row_idx * self.cols + self.cols]).to_vec();
+            for remaining_row_idx in row_idx + 1..self.rows {
+                let remaining_row = (&self.data
+                    [remaining_row_idx * self.cols..remaining_row_idx * self.cols + self.cols])
+                    .to_vec();
 
-                // modify rows                
+                // modify rows
 
-                println!("remaining row {:?}", row);
+                println!("remaining row {:?}", remaining_row);
             }
 
             idx += 1;
