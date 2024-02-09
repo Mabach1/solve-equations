@@ -1,6 +1,6 @@
 #[derive(Clone)]
 pub struct Matrix {
-    data: Vec<f32>,
+    data: Vec<f64>,
     rows: usize,
     cols: usize,
 }
@@ -17,9 +17,9 @@ impl Matrix {
     pub fn from_string(string: &str) -> Self {
         let rows = string.chars().filter(|&e| e == ';').count() + 1;
         let chopped: Vec<_> = string.split(';').collect();
-        let data: Vec<f32> = chopped
+        let data: Vec<f64> = chopped
             .iter()
-            .flat_map(|e| e.split_whitespace().map(|s| s.parse::<f32>().unwrap()))
+            .flat_map(|e| e.split_whitespace().map(|s| s.parse::<f64>().unwrap()))
             .collect();
 
         Self {
@@ -44,7 +44,7 @@ impl Matrix {
 
         let equations: Vec<_> = equations.split('/').collect();
         for equation in &equations {
-            let numbers: Vec<f32> = equation
+            let numbers: Vec<f64> = equation
                 .split('=')
                 .flat_map(|elem| {
                     let filtered_chars: Vec<char> = elem
@@ -54,8 +54,8 @@ impl Matrix {
                     let numbers_str: String = filtered_chars.iter().collect();
                     numbers_str
                         .split_whitespace()
-                        .flat_map(|elem| elem.parse::<f32>())
-                        .collect::<Vec<f32>>()
+                        .flat_map(|elem| elem.parse::<f64>())
+                        .collect::<Vec<f64>>()
                 })
                 .collect();
 
@@ -72,50 +72,60 @@ impl Matrix {
         }
     }
 
-    pub fn solve(&self) -> Vec<f32> {
-        // index of values that will be 1
-        let mut idx = 0;
+    pub fn solve(&self) -> Vec<f64> {
+        let mut data = self.data.clone();
 
-        let mut fst_iteration_result: Vec<f32> = vec![];
+        let mut divisor_idx = 0;
 
         for row_idx in 0..self.rows {
-            let current_row =
-                (&self.data[row_idx * self.cols..row_idx * self.cols + self.cols]).to_vec();
+            let mut current_row =
+                (&data[row_idx * self.cols..row_idx * self.cols + self.cols]).to_vec();
 
-            // the value of element we want to be 1
-            let divisor = current_row.get(idx).unwrap().clone();
-            let divided_row = apply(&current_row, |e| e / divisor);
+            let divisor = *current_row.get(divisor_idx).unwrap();
 
-            fst_iteration_result.append(&mut divided_row.clone());
-
-            println!("current row {:?}", divided_row);
-
-            for remaining_row_idx in row_idx + 1..self.rows {
-                let remaining_row = (&self.data
-                    [remaining_row_idx * self.cols..remaining_row_idx * self.cols + self.cols])
-                    .to_vec();
-
-                // modify rows
-
-                println!("remaining row {:?}", remaining_row);
+            if divisor == 0.0 {
+                todo!("swapping rows / matrix is irregular");
             }
 
-            idx += 1;
+            current_row = apply(&current_row, |e| e / divisor);
+
+            let mut iteration_res = vec![];
+            iteration_res.append(&mut current_row.to_vec());
+
+            // "applying" the current row to the rest of the matrix
+            for rem_row_idx in row_idx + 1..self.rows {
+                let remaining_row =
+                    (&data[rem_row_idx * self.cols..rem_row_idx * self.cols + self.cols]).to_vec();
+
+                let divided_row = apply(&current_row, |e| {
+                    e * remaining_row.get(divisor_idx).unwrap() * -1.0
+                });
+
+                let mut row_sum = apply_on_rows(&remaining_row, &divided_row, |a, b| a + b);
+
+                iteration_res.append(&mut row_sum);
+            }
+
+            data.splice(row_idx * self.cols.., iteration_res);
+            divisor_idx += 1;
         }
+
+        println!("{:?}", data);
+
         vec![]
     }
 }
 
-fn apply<F>(row: &Vec<f32>, func: F) -> Vec<f32>
+fn apply<F>(row: &Vec<f64>, func: F) -> Vec<f64>
 where
-    F: Fn(f32) -> f32,
+    F: Fn(f64) -> f64,
 {
     row.iter().map(|e| func(*e)).collect()
 }
 
-fn apply_on_rows<F>(row_a: &Vec<f32>, row_b: &Vec<f32>, func: F) -> Vec<f32>
+fn apply_on_rows<F>(row_a: &Vec<f64>, row_b: &Vec<f64>, func: F) -> Vec<f64>
 where
-    F: Fn(f32, f32) -> f32,
+    F: Fn(f64, f64) -> f64,
 {
     row_a
         .iter()

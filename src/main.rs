@@ -1,8 +1,7 @@
-use matrix::Matrix;
-mod matrix;
+pub mod matrix;
 
 fn main() {
-    let input = r#"2x-4y=6.4/-3x+8y=22/1x+10y=20"#;
-    let m = Matrix::from_equations(input);
+    let input = "1 1 0 3; 1 0 1 2; 0 1 1 1";
+    let m = matrix::Matrix::from_string(input);
     m.solve();
 }
